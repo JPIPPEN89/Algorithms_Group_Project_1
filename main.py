@@ -1,4 +1,5 @@
 import main_controller as mc
+import random
 
 def main_menu():
     #print("RSA keys have been generated.")
@@ -45,5 +46,16 @@ def key_owner():
 
     return functions[key]()
 
+
+def generate_prime():
+
+    while True:
+        p = random.randint(10000, 15000)
+        q = random.randint(10000, 15000)
+
+        if (mc.fermat_test(p) and mc.fermat_test(q)):
+            return p, q
+
 if __name__ == "__main__":
+    generate_prime()
     main_menu()
