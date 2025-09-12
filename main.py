@@ -56,6 +56,9 @@ def generate_prime():
         if (mc.fermat_test(p) and mc.fermat_test(q)):
             return p, q
 
+#find phi(p-1)(q-1)
+#find e
+
 if __name__ == "__main__":
     generate_prime()
     main_menu()

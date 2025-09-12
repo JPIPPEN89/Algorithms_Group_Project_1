@@ -1,6 +1,9 @@
 import random
 import math
 
+from main import generate_prime
+
+
 class Main_Controller:
 
 
@@ -25,5 +28,13 @@ class Main_Controller:
                 break
 
         return test
+
+    def e(self):
+        p,q = generate_prime()
+        phi = (p-1) * (q-1)
+        e = random.randint(2, phi)
+        while math.gcd(e, phi) != 1:
+            e = random.randint(2, phi)
+        return e
 
     # Example usage
