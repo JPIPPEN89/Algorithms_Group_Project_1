@@ -29,7 +29,7 @@ class Main_Controller:
 
         return test
 
-    def e(self):
+    def find_e(self):
         p,q = generate_prime()
         phi = (p-1) * (q-1)
         e = random.randint(2, phi)
@@ -37,4 +37,4 @@ class Main_Controller:
             e = random.randint(2, phi)
         return e
 
-    # Example usage
+

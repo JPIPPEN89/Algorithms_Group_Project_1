@@ -57,7 +57,7 @@ def generate_prime():
             return p, q
 
 #find phi(p-1)(q-1)
-#find e
+#find e (done)
 
 if __name__ == "__main__":
     generate_prime()
