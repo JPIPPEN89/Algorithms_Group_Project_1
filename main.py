@@ -5,7 +5,7 @@ def main_menu():
     #print("RSA keys have been generated.")
 
     key = str(input("Please select your user type:\n"
-          "\t1. A public User\n"
+          "\t1. A public user\n"
           "\t2. The owner of the keys\n"
           "\t3. Exit Program"))
 
@@ -36,29 +36,32 @@ def key_owner():
     key = str(input("As the owner of the keys, what would you like to do?\n"
                     "\t1. Decrypt a received message\n"
                     "\t2. Digitally sign a message\n"
-                    "\t3. Exit"))
+                    "\t3. Show the keys"
+                    "\t4. Generating a new set of the keys"
+                    "\t5. Exit"))
 
-    functions = {"1": decrypt_message, "2": digital_sign, "3": 'Have a great day!'}
+    functions = {"1": decrypt_message, "2": digital_sign, '3': display_keys,
+                 '4': generate_keys, "5": 'Have a great day!'}
 
-    if key == '3':
-        print(functions['3'])
+    if key == '5':
+        print(functions['5'])
         return
 
     return functions[key]()
 
 
-def generate_prime():
 
-    while True:
-        p = random.randint(10000, 15000)
-        q = random.randint(10000, 15000)
 
-        if (mc.fermat_test(p) and mc.fermat_test(q)):
-            return p, q
-
-#find phi(p-1)(q-1)
-#find e (done)
 
 if __name__ == "__main__":
-    generate_prime()
-    main_menu()
+    p,q = mc.Main_Controller().generate_prime()
+    n = p*q
+    #main_menu()
+    e, phi = mc.Main_Controller().generate_public_key(p,q)
+    message = mc.Main_Controller().encrypt_message(e,n)
+
+    d = mc.Main_Controller().generate_private_key(e,phi)
+
+    mc.Main_Controller().decrypt_message(message, d, n)
+
+    print(d)
