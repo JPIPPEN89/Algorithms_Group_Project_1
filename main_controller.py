@@ -90,3 +90,25 @@ class Main_Controller:
         print("Here is the deciphered text: " + plaintext)
         return plaintext
 
+# attempt at generating and verifying digital signature
+def sign_message(self, message: str, d: int, n: int) -> int:
+    #Converts message into a number
+    m_int = 0
+    for ch in message:
+        m_int = m_int * 256 + ord(ch)
+        if m_int >= n:
+            raise valueError("Messsage too large for the key")
+            
+            signature = pow(m_int, d, n)
+            print("Signature (int): " signature)
+            return signature
+        
+    def verify_signature(self, message: str, signature: int, e: int, n: int) -> bool:
+        m_int = 0
+        for ch in message:
+            m_int= m_int * 256 + ord(ch)
+            
+            m_prime = pow(signature, e, n)
+            is_valid = (m_int == m_prime)
+    print ("Verification passed?", is_valid)
+    return is_valid
