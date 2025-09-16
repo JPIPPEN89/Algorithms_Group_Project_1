@@ -10,9 +10,11 @@ class RSA:
         self.e = None
         self.phi = None
         self.d = None
+        self.encrypted_message = []
+        self.decrypted_message = False
+        self.dig_signatures = []
 
-    def generate_keys(self): #####################WORKING HERE
-        self.p, self.q =
+
 
     def fermat_test(self, n):
         test = True
@@ -30,24 +32,25 @@ class RSA:
         return test
 
     def generate_prime(self):
+        # We are using large random integers and running the fermats test
+        # to ensure that they are as close to prime as the could be
 
         while True:
-            p = random.randint(1000000, 1003000)
-            q = random.randint(1000000, 1003000)
-            if p != q:
-                if self.fermat_test(p) and self.fermat_test(q):
-                    return p, q
+            self.p = random.randint(1000000, 1003000)
+            self.q = random.randint(1000000, 1003000)
+            if self.p != self.q:
+                if self.fermat_test(self.p) and self.fermat_test(self.q):
+                    return
 
-    def generate_public_key(self, p, q):
-        n = p * q
-        phi = (p - 1) * (q - 1)
+    def generate_public_key(self):
+        self.n = self.p * self.q
+        self.phi = (self.p - 1) * (self.q - 1)
 
-        e = random.randint(2, phi)
+        self.e = random.randint(2, self.phi)
 
-        while math.gcd(e, phi) != 1:
-            e = random.randint(2, phi)
+        while math.gcd(self.e, self.phi) != 1:
+            self.e = random.randint(2, self.phi)
 
-        return e, phi
 
     def extended_gcd(self, a, b):
 
@@ -58,130 +61,197 @@ class RSA:
 
         return y, x - a // b * y, d
 
-    def generate_private_key(self, e, phi):
+    def generate_private_key(self):
 
-        x = self.extended_gcd(e, phi)
-        d = x[0] % phi
+        x = self.extended_gcd(self.e, self.phi)
+        self.d = x[0] % self.phi
 
-        return d
 
-    def encrypt_message(self, e, n):
-        message = input('Type your short message:  ')
-        message = message.upper()
+    def encrypt_message(self):
+        msg = input('Type your short message:  ')
+        msg = msg.upper()
         st = "Here is the ciphered text: "
-        msg = ""
+        msg1 = ""
 
-        for x in message:
-            x = pow(ord(x), e, n)
+        for x in msg:
+            x = pow(ord(x), self.e, self.n)
 
-            msg += str(x) + " "
+            msg1 += str(x) + " "
 
-        msg = msg.strip()
-        print(st + msg)
+        msg1 = msg1.strip()
+        print(st + msg1)
 
-        return msg
+        self.encrypted_message.append(msg1)
+        print("Message Encrypted and Sent")
 
-    def decrypt_message(self, msg, d, n):
-        parts = msg.split()
+
+
+    def decrypt_message(self):
+        print("The following messages are available:")
+        if len(self.encrypted_message) == 0:
+            print("No messages to decrypt")
+            return
+
+        for m in self.encrypted_message:
+            count = 1
+            print(f"\t{count}.\t(length = {len(m)})")
+
+        choice = int(input("Enter your choice: "))
+
+        parts = self.encrypted_message[choice-1].split()
+
         plaintext = ""
         for s in parts:
-            m = pow(int(s), d, n)
+            m = pow(int(s), self.d, self.n)
             plaintext += chr(m)
         print("Here is the deciphered text: " + plaintext)
-        return plaintext
+        self.decrypted_message = True
+
 
     # attempt at generating and verifying digital signature
-    def sign_message(self, message: str, d: int, n: int) -> int:
-        # Converts message into a number
-        m_int = 0
-        for ch in message:
-            m_int = m_int * 256 + ord(ch)
+    def sign_message(self):
+        if len(self.encrypted_message) == 0:
+            print("There are no messages to sign.")
+            return
 
-            if m_int >= n:
-                signature = pow(m_int, d, n)
-                print("Signature (int): "
-                signature)
-                return signature
+        msg = input("Enter a message: ")
+        sig_parts = []
+        for ch in msg:
+            sig_parts.append(str(pow(ord(ch), self.d, self.n)))
+        sig = " ".join(sig_parts)
+        self.dig_signatures.append((msg, sig))
+        print("Message signed and sent.")
 
-    def verify_signature(self, message: str, signature: int, e: int, n: int) -> bool:
-        m_int = 0
-        for ch in message:
-            m_int = m_int * 256 + ord(ch)
+    def verify_signature(self, message, signature, e, n):
 
-            m_prime = pow(signature, e, n)
-            is_valid = (m_int == m_prime)
+        if len(self.dig_signatures) == 0:
+            print("There are no signature to authenticate.")
+            return
 
-    print("Verification passed?", is_valid)
-    return is_valid
+        print("The following messages are available:")
+        for i, (msg, sig) in enumerate(self.dig_signatures, start=1):
+            print(f"{i}. {msg}")
 
+        try:
+            choice = int(input("Enter your choice: "))
+        except ValueError:
+            print("Invalid choice")
+            return
+        if not (1 <= choice <= len(self.dig_signatures)):
+            print("Invalid choice")
+            return
 
-def main_menu(key):
+        msg, sig = self.dig_signatures[choice - 1]
+        tokens = sig.split()
+        if len(tokens) != len(msg):
+            print("Signature is invalid.")
+            return
 
-    #print("RSA keys have been generated.")
+        ok = True
+        for ch, t in zip(msg, tokens):
+            m_prime = pow(int(t), self.e, self.n)  # verify with public key
+            if m_prime != ord(ch):
+                ok = False
+                break
 
-    functions = {"1": public_user, "2": key_owner, "3": 'Have a great day!'}
+        if ok:
+            print("Signature is valid.")
+        else:
+            print("Signature is invalid.")
 
-    if key == '3':
-        print(functions['3'])
-        return
-
-    return functions[key] ()
-
-def public_user():
-
-    key = str(input("As a public user, what would you like to do?\n"
-          "\t1. Send an encrypted message\n"
-          "\t2. Authenticate a digital signature\n"
-          "\t3. Exit"))
-
-    functions = {"1" : lambda:[], "2" : dig_sign, "3": 'Have a great day!'}
-
-    if key == '3':
-        print(functions['3'])
-        return
-
-    return functions[key] ()
-
-def key_owner():
-    key = str(input("As the owner of the keys, what would you like to do?\n"
-                    "\t1. Decrypt a received message\n"
-                    "\t2. Digitally sign a message\n"
-                    "\t3. Show the keys"
-                    "\t4. Generating a new set of the keys"
-                    "\t5. Exit"))
-
-    functions = {"1": decrypt_message, "2": digital_sign, '3': display_keys,
-                 '4': generate_keys, "5": 'Have a great day!'}
-
-    if key == '5':
-        print(functions['5'])
-        return
-
-    return functions[key]()
+    def display_keys(self):
+        if not self.n and not self.d:
+            print("No private keys")
+        else:
+            print (f"n = {self.n} d = {self.d}")
 
 
+    # def main_menu(self, key):
+    #
+    #     #print("RSA keys have been generated.")
+    #     key = str(key)
+    #     functions = {"1": lambda:(self.public_user()), "2": lambda:(self.key_owner()), "3": 'Have a great day!'}
+    #
+    #     if key == '3':
+    #         print(functions['3'])
+    #         return
+    #
+    #     return functions[key]
 
+    def public_user(self):
+        key = ""
+
+        key = str(input("As a public user, what would you like to do?\n"
+              "\t1. Send an encrypted message\n"
+              "\t2. Authenticate a digital signature\n"
+              "\t3. Exit\n"))
+
+        if key == '1':
+            self.encrypt_message()
+        elif key ==2:
+            self.sign_message(self.d, self.n)
+        elif key == '3':
+            return
+
+
+
+
+    def key_owner(self):
+        key = str(input("As the owner of the keys, what would you like to do?\n"
+                        "\t1. Decrypt a received message\n"
+                        "\t2. Digitally sign a message\n"
+                        "\t3. Show the keys\n"
+                        "\t4. Generate a new set of the keys\n"
+                        "\t5. Exit\n"))
+
+        if key == '1':
+            self.decrypt_message()
+            return
+        elif key == '2':
+            self.sign_message()
+            return
+        elif key == '3':
+            self.display_keys()
+            return
+        elif key == '4':
+            self.generate_keys()
+            print("Keys Generated")
+            return
+        elif key == '5':
+            print('Have a great day!')
+            return
+        else:
+            print('Invalid choice')
+            return
+
+    def generate_keys(self):
+        self.generate_prime()
+        self.generate_public_key()
+        self.generate_private_key()
+
+        print("RSA Keys Generated")
 
 
 if __name__ == "__main__":
     choice = 0
+    app = RSA()
+    app.generate_keys()
 
     # while loop runs until exits, this will be entry point for the program
-    while choice != 3:
-        choice = input(("Please Select Your User Type: "
+    #keys is the RSA class where keys and messages will be saved and altered
+    while choice != '3':
+        choice = input(("Please Select Your User Type:\n "
               "\t1. A public user\n"
               "\t2. The owner of the keys\n"
-              "\t3. Exit Program"))
-        main_menu(input)
+              "\t3. Exit Program\n"))
+
+        if choice == '1':
+            app.public_user()
+        elif choice == '2':
+            app.key_owner()
+        else:
+            print("Have a great day!")
+            break
 
 
 
-        p,q = mc.Main_Controller().generate_prime()
-        n = p*q
-        e, phi = mc.Main_Controller().generate_public_key(p,q)
-        message = mc.Main_Controller().encrypt_message(e,n)
-        d = mc.Main_Controller().generate_private_key(e,phi)
-
-        mc.Main_Controller().decrypt_message(message, d, n)
-
-        print(d)
