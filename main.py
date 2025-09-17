@@ -4,8 +4,8 @@ import random
 #Creating a class so that i can save the current variables and transfer them through the functions I already built
 class RSA:
     def __init__(self):
-        self.p = None
-        self.q = None
+        self.p = None 
+        self.q = None 
         self.n = None
         self.e = None
         self.phi = None
@@ -15,7 +15,7 @@ class RSA:
         self.dig_signatures = []
 
 
-
+# Fermat test to check for prime number
     def fermat_test(self, n):
         test = True
 
@@ -25,6 +25,7 @@ class RSA:
             if g != 1:
                 test = False
                 break
+                #Fermat's little theorem
             if pow(a, n - 1, n) != 1:
                 test = False
                 break
@@ -42,16 +43,17 @@ class RSA:
                 if self.fermat_test(self.p) and self.fermat_test(self.q):
                     return
 
+    # Generating the public key
     def generate_public_key(self):
         self.n = self.p * self.q
         self.phi = (self.p - 1) * (self.q - 1)
 
+        # Choose e so that 1 < e < phi and gcd(e, phi) = 1
         self.e = random.randint(2, self.phi)
-
         while math.gcd(self.e, self.phi) != 1:
             self.e = random.randint(2, self.phi)
 
-
+# Euclid's Extended Algorithm
     def extended_gcd(self, a, b):
 
         if b == 0:
@@ -61,18 +63,20 @@ class RSA:
 
         return y, x - a // b * y, d
 
+    #Generating the private key
     def generate_private_key(self):
 
         x = self.extended_gcd(self.e, self.phi)
         self.d = x[0] % self.phi
 
-
+# Encrypting the message using public key
     def encrypt_message(self):
         msg = input('Type your short message:  ')
         msg = msg.upper()
         st = "Here is the ciphered text: "
         msg1 = ""
 
+        # RSA encryption 
         for x in msg:
             x = pow(ord(x), self.e, self.n)
 
@@ -85,7 +89,7 @@ class RSA:
         print("Message Encrypted and Sent")
 
 
-
+# Decrypting the message using private key
     def decrypt_message(self):
         print("The following messages are available:")
         if len(self.encrypted_message) == 0:
@@ -99,7 +103,7 @@ class RSA:
         choice = int(input("Enter your choice: "))
 
         parts = self.encrypted_message[choice-1].split()
-
+        # RSA decryption
         plaintext = ""
         for s in parts:
             m = pow(int(s), self.d, self.n)
@@ -107,8 +111,7 @@ class RSA:
         print("Here is the deciphered text: " + plaintext)
         self.decrypted_message = True
 
-
-    # attempt at generating and verifying digital signature
+# Signing the message using private key
     def sign_message(self):
         if len(self.encrypted_message) == 0:
             print("There are no messages to sign.")
@@ -122,6 +125,7 @@ class RSA:
         self.dig_signatures.append((msg, sig))
         print("Message signed and sent.")
 
+    # Verifying digital signature using public key
     def verify_signature(self, message, signature, e, n):
 
         if len(self.dig_signatures) == 0:
@@ -159,6 +163,7 @@ class RSA:
         else:
             print("Signature is invalid.")
 
+    # Displaying the key
     def display_keys(self):
         if not self.n and not self.d:
             print("No private keys")
@@ -178,6 +183,7 @@ class RSA:
     #
     #     return functions[key]
 
+    # Menu options for users
     def public_user(self):
         key = ""
 
@@ -195,7 +201,7 @@ class RSA:
 
 
 
-
+# Menu options for the key owner
     def key_owner(self):
         key = str(input("As the owner of the keys, what would you like to do?\n"
                         "\t1. Decrypt a received message\n"
@@ -223,7 +229,7 @@ class RSA:
         else:
             print('Invalid choice')
             return
-
+# Generating a RSA key pair
     def generate_keys(self):
         self.generate_prime()
         self.generate_public_key()
