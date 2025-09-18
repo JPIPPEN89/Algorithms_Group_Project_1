@@ -126,7 +126,7 @@ class RSA:
         print("Message signed and sent.")
 
     # Verifying digital signature using public key
-    def verify_signature(self, message, signature, e, n):
+    def verify_signature(self):
 
         if len(self.dig_signatures) == 0:
             print("There are no signature to authenticate.")
@@ -173,49 +173,47 @@ class RSA:
 
     def public_user(self):
         key = ""
+        while True:
+            key = str(input("As a public user, what would you like to do?\n"
+                  "\t1. Send an encrypted message\n"
+                  "\t2. Authenticate a digital signature\n"
+                  "\t3. Exit\n"))
 
-        key = str(input("As a public user, what would you like to do?\n"
-              "\t1. Send an encrypted message\n"
-              "\t2. Authenticate a digital signature\n"
-              "\t3. Exit\n"))
-
-        if key == '1':
-            self.encrypt_message()
-        elif key ==2:
-            self.sign_message(self.d, self.n)
-        elif key == '3':
-            return
+            if key == '1':
+                self.encrypt_message()
+            elif key =='2':
+                self.verify_signature()
+            elif key == '3':
+                return
 
 
 
 # Menu options for the key owner
     def key_owner(self):
-        key = str(input("As the owner of the keys, what would you like to do?\n"
-                        "\t1. Decrypt a received message\n"
-                        "\t2. Digitally sign a message\n"
-                        "\t3. Show the keys\n"
-                        "\t4. Generate a new set of the keys\n"
-                        "\t5. Exit\n"))
 
-        if key == '1':
-            self.decrypt_message()
-            return
-        elif key == '2':
-            self.sign_message()
-            return
-        elif key == '3':
-            self.display_keys()
-            return
-        elif key == '4':
-            self.generate_keys()
-            print("Keys Generated")
-            return
-        elif key == '5':
-            print('Have a great day!')
-            return
-        else:
-            print('Invalid choice')
-            return
+        while True:
+            key = str(input("As the owner of the keys, what would you like to do?\n"
+                            "\t1. Decrypt a received message\n"
+                            "\t2. Digitally sign a message\n"
+                            "\t3. Show the keys\n"
+                            "\t4. Generate a new set of the keys\n"
+                            "\t5. Exit\n"))
+
+            if key == '1':
+                self.decrypt_message()
+            elif key == '2':
+                self.sign_message()
+            elif key == '3':
+                self.display_keys()
+            elif key == '4':
+                self.generate_keys()
+                print("Keys Generated")
+            elif key == '5':
+                print('Have a great day!')
+                return
+            else:
+                print('Invalid choice')
+
 # Generating a RSA key pair
     def generate_keys(self):
         self.generate_prime()
