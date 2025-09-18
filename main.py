@@ -171,19 +171,6 @@ class RSA:
             print (f"n = {self.n} d = {self.d}")
 
 
-    # def main_menu(self, key):
-    #
-    #     #print("RSA keys have been generated.")
-    #     key = str(key)
-    #     functions = {"1": lambda:(self.public_user()), "2": lambda:(self.key_owner()), "3": 'Have a great day!'}
-    #
-    #     if key == '3':
-    #         print(functions['3'])
-    #         return
-    #
-    #     return functions[key]
-
-    # Menu options for users
     def public_user(self):
         key = ""
 
@@ -244,7 +231,7 @@ if __name__ == "__main__":
     app.generate_keys()
 
     # while loop runs until exits, this will be entry point for the program
-    #keys is the RSA class where keys and messages will be saved and altered
+    #app is the RSA class object where keys and messages will be saved and altered
     while choice != '3':
         choice = input(("Please Select Your User Type:\n "
               "\t1. A public user\n"
